@@ -1,0 +1,27 @@
+[submodule "roles/nginx"]
+	path = roles/nginx
+	url = https://github.com/TalLannder/ansible-role-nginx
+[submodule "roles/ansible"]
+	path = roles/ansible
+	url = https://github.com/TalLannder/ansible-role-ansible
+[submodule "roles/common-packages"]
+	path = roles/common-packages
+	url = https://github.com/TalLannder/ansible-role-common-packages
+[submodule "roles/git"]
+	path = roles/git
+	url = https://github.com/TalLannder/ansible-role-git
+[submodule "roles/go"]
+	path = roles/go
+	url = https://github.com/TalLannder/ansible-role-go
+[submodule "roles/motd"]
+	path = roles/motd
+	url = https://github.com/TalLannder/ansible-role-motd
+[submodule "roles/redis"]
+	path = roles/redis
+	url = https://github.com/TalLannder/ansible-role-redis
+[submodule "roles/supervisor"]
+	path = roles/supervisor
+	url = https://github.com/TalLannder/ansible-role-supervisor
+[submodule "roles/unattended-upgrades"]
+	path = roles/unattended-upgrades
+	url = https://github.com/TalLannder/ansible-role-unattended-upgrades

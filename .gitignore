@@ -1,0 +1,3 @@
+.ssh/*
+group_files/*
+group_vars/*

@@ -1,0 +1,45 @@
+---
+# talk to all hosts just so we can learn about them
+- hosts: all
+  tasks:
+   - name: Group nodes by ansible_system
+     group_by: key={{ ansible_system }}
+
+   - name: Group nodes by ansible_os_family
+     group_by: key={{ ansible_os_family }}
+
+   - name: Group nodes by distribution
+     group_by: key={{ ansible_distribution }}
+
+   - name: Group nodes by distribution and version
+     group_by: key={{ ansible_distribution }}-{{ ansible_distribution_release }}
+
+
+- hosts: 
+   - Linux
+  gather_facts: False
+  roles:
+   - common-packages
+   - motd
+   - unattended-upgrades
+
+
+- hosts:
+   - dev-loc-aio
+   - tag_role_build
+  gather_facts: False
+  roles:
+   - git
+   - ansible
+   - go
+   - redis
+
+
+#- hosts:
+#   - dev-loc-aio
+#   - tag_role_aio
+#  gather_facts: False
+#  roles:
+#   - git
+#   - nginx
+#   - supervisor
