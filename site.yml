@@ -35,11 +35,13 @@
    - redis
 
 
-#- hosts:
-#   - dev-loc-aio
-#   - tag_role_aio
-#  gather_facts: False
-#  roles:
-#   - git
+- hosts:
+   - dev-loc-aio
+   - tag_role_aio
+  gather_facts: False
+  roles:
+   - git
+   - mysql
+   - redis
 #   - nginx
 #   - supervisor

@@ -25,3 +25,6 @@
 [submodule "roles/unattended-upgrades"]
 	path = roles/unattended-upgrades
 	url = https://github.com/TalLannder/ansible-role-unattended-upgrades
+[submodule "roles/mysql"]
+	path = roles/mysql
+	url = https://github.com/TalLannder/ansible-role-mysql.git
