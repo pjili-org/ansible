@@ -43,5 +43,5 @@
    - git
    - mysql
    - redis
-#   - nginx
-#   - supervisor
+   - nginx
+   - supervisor
