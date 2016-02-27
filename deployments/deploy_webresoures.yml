@@ -1,0 +1,25 @@
+---
+#
+# Example:
+# ansible-playbook deploy_webresoures.yml -e 'site=cupi.co src_repo=https://github.com/cupi-co/webresources.git dest_hosts=dev11.loc'
+#
+
+- hosts: '{{ dest_hosts }}'
+  gather_facts: false
+  tasks:
+
+  - name: Check for required variables
+    fail:
+     msg: "One of the required variable not proveded (site or src_repo or dest_hosts)"
+    when: (site or src_repo or dest_hosts) is undefined
+
+
+  - name: Clone repo on remote
+    git:
+     repo: "{{ src_repo }}"
+     dest: /opt/{{ site }}
+     recursive: yes
+     track_submodules: yes
+     update: yes
+     accept_hostkey: yes
+     version: '{{ version | default("master") }}'

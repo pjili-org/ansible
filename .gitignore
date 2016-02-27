@@ -1,3 +1,4 @@
 .ssh/*
 group_files/*
 group_vars/*
+deployments/apps/*

@@ -1,0 +1,124 @@
+---
+#
+# Example:
+#
+# ansible-playbook deployments/deploy_app.yml -e "app_name=controller-main app_repo=https://github.com/pjili-org/controller-main.git dest_hosts=dev.loc app_cfg=dev-loc-aio.app.conf.j2"
+#
+
+- hosts: localhost
+  gather_facts: false
+
+  tasks:
+  - name: Check for required variables
+    fail:
+     msg: "One of the required variable not proveded"
+    when: (app_name or app_repo or app_cfg or dest_hosts) is undefined
+
+
+  - name: Check out the application
+    git:
+     repo: "{{ app_repo }}"
+     dest: /opt/deploy/{{ app_name }}
+     recursive: yes
+     track_submodules: yes
+     update: yes
+     version: '{{ version | default("master") }}'
+    register: app_clone
+
+
+  - name: make sure the pack.sh script present
+    copy:
+     src=pack.sh
+     dest=/opt/deploy/{{ app_name }}/pack.sh
+     owner=root
+     group=root
+     mode=0750
+
+
+  - name: run beego pack to make the application package
+    command: /opt/deploy/{{ app_name }}/pack.sh
+    when: app_clone.changed
+
+
+- hosts: '{{ dest_hosts }}'
+  gather_facts: False
+
+  tasks:
+  - name: check if we have new package to deploy
+    stat:
+     path=/opt/deploy/{{ app_name }}/{{ app_name }}.tar.gz
+    register: app_pkg
+    delegate_to: localhost
+
+  # Deploy the application only if we have new package ready
+  - block:
+    - name: supervisor stop
+      service:
+       name=supervisor
+       state=stopped
+
+    - name: create application user
+      user:
+       name={{ app_name }}
+       home=/opt/{{ app_name }}
+       shell=/usr/sbin/nologin
+
+    - name: remove old directory
+      file:
+       path=/opt/{{ app_name }}
+       state=absent
+
+
+    - name: create home dir and update permissions
+      file:
+       path=/opt/{{ app_name }}
+       owner={{ app_name }}
+       group={{ app_name }}
+       mode="u=rwx,g=rx,o="
+       state=directory
+
+
+    - name: unarchive qpplication to remote
+      unarchive:
+       src=/opt/deploy/{{ app_name }}/{{ app_name }}.tar.gz
+       dest=/opt/{{ app_name }}
+
+
+    - name: create logs and conf directories
+      file:
+       path=/opt/{{ app_name }}/{{ item }}
+       owner={{ app_name }}
+       group={{ app_name }}
+       mode="u=rwx,g=rx,o="
+       state=directory
+      with_items:
+       - logs
+       - conf
+
+
+    - name: check application supervisor scripts
+      template:
+       src=apps/{{ app_name }}/app.supervisor.conf.j2
+       dest=/etc/supervisor/conf.d/{{ app_name }}.conf
+      notify: supervisor restart
+
+
+    - name: copy application configuration file
+      template:
+       src=apps/{{ app_name }}/{{ app_cfg }}
+       dest=/opt/{{ app_name }}/conf/app.conf
+
+
+    - name: supervisor restart
+      service:
+       name=supervisor
+       state=restarted
+
+
+    - name: remove deployed package
+      file:
+       path=/opt/deploy/{{ app_name }}/{{ app_name }}.tar.gz
+       state=absent
+      delegate_to: localhost
+
+    when: app_pkg.stat.exists
